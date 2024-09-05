@@ -1,12 +1,10 @@
 import express from 'express'
+import { userRoutes } from './routes/user.routes'
 
 const app = express()
 
 app.use(express.json())
-
-app.get('/', (req, res) => {
-  return res.status(200).json({ message: 'Hello world' })
-})
+app.use(userRoutes)
 
 const PORT = 3000
 app.listen(PORT, () => {
