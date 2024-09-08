@@ -59,16 +59,35 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const { id, ...updateData }: UpdateInput = validateUpdate({
-      id: Number(req.params.id),
-      updateData: req.body,
-    })
-    // TODO: resolve problem the id needs type undefined , see idExists.ts
-    if (await idExists(id)) {
+    const id = Number(req.params.id)
+
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({ message: 'Invalid user ID' })
+    }
+
+    let updateData: UpdateInput
+    try {
+      updateData = validateUpdate(req.body)
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const formattedErrors = formattedZodErrors(error)
+        return res.status(400).json({
+          message: 'Validation error',
+          errors: formattedErrors,
+        })
+      }
+      throw error
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: 'No valid update data provided' })
+    }
+
+    if (!(await idExists(id))) {
       return res.status(404).json({ message: 'User not found' })
     }
 
-    const updateUser = await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id },
       data: updateData,
       select: {
@@ -77,16 +96,32 @@ export const updateUser = async (req: Request, res: Response) => {
         age: true,
       },
     })
+
     res
       .status(200)
-      .json({ message: 'User updated successfully', update: updateUser })
+      .json({ message: 'User updated successfully', update: updatedUser })
   } catch (err) {
-    if (err instanceof ZodError) {
-      const formattedErrors = formattedZodErrors(err)
-      res.status(400).json({ errors: formattedErrors })
-    } else {
-      console.error('Erros when updating user:', err)
-      res.status(500).json({ error: 'Erro interno do servidor' })
+    console.error('Errors when updating user:', err)
+    res.status(500).json({ error: 'Erro interno do servidor' })
+  }
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    const id = Number(req.params.id)
+
+    if (isNaN(id) || id <= 0) {
+      return res.status(400).json({ message: 'Invalid user ID' })
     }
+
+    if (!(await idExists(id))) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    await prisma.user.delete({ where: { id } })
+
+    res.status(200).json({ message: 'Deleted user successfully' })
+  } catch (err) {
+    console.log(err)
   }
 }

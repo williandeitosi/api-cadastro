@@ -20,26 +20,27 @@ export const createUserSchema = z.object({
 })
 export type UserInput = z.infer<typeof createUserSchema>
 
-export const updateUserSchema = z.object({
-  id: z.number().int().positive().optional(),
-  email: z.string().email({ message: 'Invalid email' }).optional(),
-  name: z
-    .string()
-    .min(3, { message: 'Name must have at least 3 characters' })
-    .nullable()
-    .optional(),
-  password: z
-    .string()
-    .min(3, { message: 'Password must have at least 3 characters' })
-    .optional(),
-  age: z
-    .number()
-    .positive()
-    .int()
-    .min(18, { message: 'Min age is 18 years old' })
-    .nullable()
-    .optional(),
-})
+export const updateUserSchema = z
+  .object({
+    email: z.string().email({ message: 'Invalid email' }).optional(),
+    name: z
+      .string()
+      .min(3, { message: 'Name must have at least 3 characters' })
+      .nullable()
+      .optional(),
+    password: z
+      .string()
+      .min(3, { message: 'Password must have at least 3 characters' })
+      .optional(),
+    age: z
+      .number()
+      .positive()
+      .int()
+      .min(18, { message: 'Min age is 18 years old' })
+      .nullable()
+      .optional(),
+  })
+  .partial()
 
 export type UpdateInput = z.infer<typeof updateUserSchema>
 
