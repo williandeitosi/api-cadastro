@@ -12,7 +12,9 @@ import {
 } from '../validators/modelValidators'
 
 export const getAll = async (req: Request, res: Response) => {
-  const allUsers = await prisma.user.findMany()
+  const allUsers = await prisma.user.findMany({
+    orderBy: { id: 'asc' },
+  })
 
   if (!allUsers) {
     return res.status(404).json({ message: 'Users not found' })
