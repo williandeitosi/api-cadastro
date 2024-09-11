@@ -53,10 +53,22 @@ export const PostSchema = z.object({
   authorId: z
     .number()
     .int()
-    .positive({ message: 'Author ID must be a positive number' }),
+    .positive({ message: 'Author ID must be a positive number' })
+    .optional(),
 })
 
 export type PostInput = z.infer<typeof PostSchema>
+
+export const updatePostSchema = z.object({
+  title: z
+    .string()
+    .min(3, { message: 'Password must have at least 3 characters' })
+    .optional(),
+  content: z.string().nullable().optional(),
+  published: z.boolean().default(false),
+})
+
+export type UpdatePostInput = z.infer<typeof updatePostSchema>
 
 export function validateUser(data: unknown): UserInput {
   return createUserSchema.parse(data)
@@ -67,4 +79,7 @@ export function validateUpdate(data: unknown): UpdateInput {
 }
 export function validatePost(data: unknown): PostInput {
   return PostSchema.parse(data)
+}
+export function validatePostUpdate(data: unknown): UpdatePostInput {
+  return updatePostSchema.parse(data)
 }

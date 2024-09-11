@@ -26,7 +26,7 @@ export const getAll = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { age, email, name, password }: UserInput = validateUser(req.body)
-
+    // TODO: Refactor this code, because zod already handles  erros
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and Password is required' })
     }
@@ -66,7 +66,7 @@ export const updateUser = async (req: Request, res: Response) => {
     if (isNaN(id) || id <= 0) {
       return res.status(400).json({ message: 'Invalid user ID' })
     }
-
+    // TODO: understand this party
     let updateData: UpdateInput
     try {
       updateData = validateUpdate(req.body)
