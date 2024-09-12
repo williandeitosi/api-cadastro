@@ -2,7 +2,7 @@ import type { Request, Response } from 'express'
 import { ZodError } from 'zod'
 import { prisma } from '../config/database'
 import { formattedZodErrors } from '../utils/formaErrors'
-import { idExists } from '../utils/idExists'
+import { idExists, postIdExists } from '../utils/idExists'
 import { validatePost, validatePostUpdate } from '../validators/modelValidators'
 
 export const createUserPost = async (req: Request, res: Response) => {
@@ -10,7 +10,7 @@ export const createUserPost = async (req: Request, res: Response) => {
     const { content, published, title } = validatePost(req.body)
     const userId = Number(req.params.id)
 
-    if (!(await idExists(userId))) {
+    if (!(await postIdExists(userId))) {
       return res.status(404).json({ message: 'User not found' })
     }
     await prisma.post.create({
@@ -65,7 +65,7 @@ export const deleteUserPost = async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.postId)
 
-    if (!(await idExists(id))) {
+    if (!(await postIdExists(id))) {
       return res.status(404).json({ message: 'Post not found' })
     }
 
@@ -88,6 +88,11 @@ export const deleteUserPost = async (req: Request, res: Response) => {
 export const updateUserPost = async (req: Request, res: Response) => {
   const updateData = validatePostUpdate(req.body)
   const id = Number(req.params.postId)
+
+  if (!(await postIdExists(id))) {
+    return res.status(404).json({ message: 'Post not found' })
+  }
+
   console.log(id)
 
   const updatePost = await prisma.post.update({
@@ -99,4 +104,3 @@ export const updateUserPost = async (req: Request, res: Response) => {
     .status(200)
     .json({ message: 'Updated post successfully', data: updatePost })
 }
-// TODO: ajustments in code , remove or create idExists

@@ -8,8 +8,8 @@ import {
   validateUpdate,
   validateUser,
   type UpdateInput,
-  type UserInput,
 } from '../validators/modelValidators'
+import { UserInput } from './../validators/modelValidators'
 
 export const getAll = async (req: Request, res: Response) => {
   const allUsers = await prisma.user.findMany({
@@ -26,16 +26,6 @@ export const getAll = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
   try {
     const { age, email, name, password }: UserInput = validateUser(req.body)
-    // TODO: Refactor this code, because zod already handles  erros
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Email and Password is required' })
-    }
-
-    if (password.length < 3) {
-      return res
-        .status(400)
-        .json({ message: 'Password need have min 3 characters' })
-    }
 
     if (await emailExists(email)) {
       return res.status(400).json({ message: 'Email already exists' })
@@ -66,20 +56,8 @@ export const updateUser = async (req: Request, res: Response) => {
     if (isNaN(id) || id <= 0) {
       return res.status(400).json({ message: 'Invalid user ID' })
     }
-    // TODO: understand this party
-    let updateData: UpdateInput
-    try {
-      updateData = validateUpdate(req.body)
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const formattedErrors = formattedZodErrors(error)
-        return res.status(400).json({
-          message: 'Validation error',
-          errors: formattedErrors,
-        })
-      }
-      throw error
-    }
+
+    const updateData: UpdateInput = validateUpdate(req.body)
 
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ message: 'No valid update data provided' })
@@ -87,6 +65,10 @@ export const updateUser = async (req: Request, res: Response) => {
 
     if (!(await idExists(id))) {
       return res.status(404).json({ message: 'User not found' })
+    }
+
+    if (updateData.email) {
+      return res.status(400).json({ message: 'Email already exists' })
     }
 
     const updatedUser = await prisma.user.update({
@@ -103,8 +85,15 @@ export const updateUser = async (req: Request, res: Response) => {
       .status(200)
       .json({ message: 'User updated successfully', update: updatedUser })
   } catch (err) {
+    if (err instanceof ZodError) {
+      const formattedErrors = formattedZodErrors(err)
+      return res.status(400).json({
+        message: 'Validation error',
+        errors: formattedErrors,
+      })
+    }
     console.error('Errors when updating user:', err)
-    res.status(500).json({ error: 'Erro interno do servidor' })
+    res.status(500).json({ error: 'Internal server error' })
   }
 }
 
