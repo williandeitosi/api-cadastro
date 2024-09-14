@@ -1,17 +1,14 @@
-import jwt from "jsonwebtoken"
-// TODO: read and understand that happens here
+import jwt from 'jsonwebtoken'
 
-
-const secret = 'my_secret'
+const secret: string = process.env.SECRET_WORD as string
 
 export const generateToken = (payload: object) => {
-    return jwt.sign(payload, secret, { expiresIn: "1h" })
+  return jwt.sign(payload, secret, { expiresIn: '1h' })
 }
-
 export const verifyToken = (token: string) => {
-    try {
-        return jwt.verify(token, secret)
-    } catch (err) {
-        return null
-    }
+  try {
+    return jwt.verify(token, secret)
+  } catch (err) {
+    return null
+  }
 }

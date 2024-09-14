@@ -9,13 +9,17 @@ import {
   createUser,
   deleteUser,
   getAll,
+  loginUser,
   updateUser,
 } from '../controllers/user.controller'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
 
-router.get('/users', getAll)
 router.post('/users', createUser)
+router.post('/login', loginUser)
+// TODO: solve this problem authenticateJWT
+router.get('/users', authenticateJWT, getAll)
 router.put('/users/:id', updateUser)
 router.delete('/users/:id', deleteUser)
 
