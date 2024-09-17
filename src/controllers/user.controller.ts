@@ -147,13 +147,19 @@ export const loginUser = async (req: Request, res: Response) => {
     const cookieOptions = {
       httpOnly: true,
       // secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-      // maxAge: 24 * 60 * 60 * 1000, // 1 day
+      // maxAge: 1000 * 10, // 10s
     }
 
     res.cookie('token', token, cookieOptions)
     res.status(200).json({ message: 'Login successful', token })
   } catch (err) {
-    console.error('Login error:', err)
-    res.status(500).json({ message: 'Internal server error' })
+    if (err instanceof Error) {
+      if (err.message === 'Token expired') {
+        res.clearCookie('token')
+        return res.status(401).json({ message: 'Token expired' })
+      }
+    }
+    res.clearCookie('token')
+    return res.status(403).json({ message: 'Invalid token' })
   }
 }

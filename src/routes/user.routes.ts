@@ -20,12 +20,12 @@ router.post('/users', createUser)
 router.post('/login', loginUser)
 // TODO: solve this problem authenticateJWT
 router.get('/users', authenticateJWT, getAll)
-router.put('/users/:id', updateUser)
-router.delete('/users/:id', deleteUser)
+router.put('/users/:id', authenticateJWT, updateUser)
+router.delete('/users/:id', authenticateJWT, deleteUser)
 
-router.post('/users/:id/newpost', createUserPost)
-router.get('/users/:id/posts', listUserPost)
-router.put('/users/:id/post/:postId', updateUserPost)
-router.delete('/users/:id/post/:postId', deleteUserPost)
+router.post('/users/:id/newpost', authenticateJWT, createUserPost)
+router.get('/users/:id/posts', authenticateJWT, listUserPost)
+router.put('/users/:id/post/:postId', authenticateJWT, updateUserPost)
+router.delete('/users/:id/post/:postId', authenticateJWT, deleteUserPost)
 
 export { router as userRoutes }
