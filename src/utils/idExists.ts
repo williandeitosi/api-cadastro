@@ -7,5 +7,6 @@ export const idExists = async (id: number): Promise<boolean> => {
 
 export const postIdExists = async (id: number): Promise<boolean> => {
   const isExists = await prisma.post.findUnique({ where: { id } })
+  console.log(!!isExists)
   return !!isExists
 }

@@ -18,7 +18,6 @@ const router = Router()
 
 router.post('/users', createUser)
 router.post('/login', loginUser)
-// TODO: solve this problem authenticateJWT
 router.get('/users', authenticateJWT, getAll)
 router.put('/users/:id', authenticateJWT, updateUser)
 router.delete('/users/:id', authenticateJWT, deleteUser)

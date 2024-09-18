@@ -9,8 +9,9 @@ export const createUserPost = async (req: Request, res: Response) => {
   try {
     const { content, published, title } = validatePost(req.body)
     const userId = Number(req.params.id)
+    console.log(userId)
 
-    if (!(await postIdExists(userId))) {
+    if (!(await idExists(userId))) {
       return res.status(404).json({ message: 'User not found' })
     }
     await prisma.post.create({
@@ -43,9 +44,19 @@ export const listUserPost = async (req: Request, res: Response) => {
     }
     const userPost = await prisma.user.findUnique({
       where: { id },
-      include: {
+
+      select: {
+        id: true,
+        name: true,
+        age: true,
         posts: {
           orderBy: { id: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            content: true,
+            published: true,
+          },
         },
       },
     })
